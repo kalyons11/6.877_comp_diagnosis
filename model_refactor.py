@@ -215,12 +215,13 @@ class OCSP:
     def ConstraintBasedAstar(self):
         decision_vars = self.decision_variables
         # PriorityQueue giving weird error, doing naive list for now
-        # Q = PriorityQueue(order=max, f= lambda x: self.calculate_heuristic_value(x))
-        Q = []
-        Q.append((0, dict()))
+        Q = PriorityQueue(order=max, f= lambda x: self.calculate_heuristic_value(x))
+        Q.append(dict())
+        # Q = []
+        # Q.append((0, dict()))
         expanded = []
         while len(Q) != 0:
-            assignment = Q.pop()[1]
+            assignment = Q.pop()  #[1]
             expanded.append(assignment)
             if all(var in assignment.keys() for var in decision_vars):
                 # Complete assignment, check consistency with all variables
@@ -238,38 +239,40 @@ class OCSP:
                 good_expansion = {**assignment, **{x_i:'G'}}
                 unknown_expansion = {**assignment, **{x_i:'U'}}
                 if good_expansion not in expanded:
-                    heur = self.calculate_heuristic_value(good_expansion)
-                    if len(Q) == 0:
-                        Q.append((heur, good_expansion))
-                    else:
-                        for i, (h, _) in enumerate(Q.copy()):
-                            if heur < h:
-                                Q.insert(i, (heur, good_expansion))
-                                break
-                            elif i == len(Q) - 1:
-                                Q.append((heur, good_expansion))
+                    # heur = self.calculate_heuristic_value(good_expansion)
                     # Q.append(good_expansion)
+                    # if len(Q) == 0:
+                    #     Q.append((heur, good_expansion))
+                    # else:
+                    #     for i, (h, _) in enumerate(Q.copy()):
+                    #         if heur < h:
+                    #             Q.insert(i, (heur, good_expansion))
+                    #             break
+                    #         elif i == len(Q) - 1:
+                    #             Q.append((heur, good_expansion))
+                    Q.append(good_expansion)
                 if unknown_expansion not in expanded:
-                    heur = self.calculate_heuristic_value(unknown_expansion)
-                    if len(Q) == 0:
-                        Q.append((heur, unknown_expansion))
-                    else:
-                        for i, (h, _) in enumerate(Q.copy()):
-                            if heur < h:
-                                Q.insert(i, (heur, unknown_expansion))
-                                break
-                            elif i == len(Q) - 1:
-                                Q.append((heur, unknown_expansion))
-                    # Q.append(unknown_expansion)
+                    # heur = self.calculate_heuristic_value(unknown_expansion)
+                    # if len(Q) == 0:
+                    #     Q.append((heur, unknown_expansion))
+                    # else:
+                    #     for i, (h, _) in enumerate(Q.copy()):
+                    #         if heur < h:
+                    #             Q.insert(i, (heur, unknown_expansion))
+                    #             break
+                    #         elif i == len(Q) - 1:
+                    #             Q.append((heur, unknown_expansion))
+                    Q.append(unknown_expansion)
         return None
     
 
     def ConflictDirectedAstar(self):
         decision_vars = self.decision_variables
         # PriorityQueue giving weird error, doing naive list for now
-        # Q = PriorityQueue(order=max, f= lambda x: self.calculate_heuristic_value(x))
-        Q = []
-        Q.append((0, dict()))
+        Q = PriorityQueue(order=max, f= lambda x: self.calculate_heuristic_value(x))
+        Q.append(dict())
+        # Q = []
+        # Q.append((0, dict()))
         expanded = []
         constituents = []
 
@@ -283,7 +286,7 @@ class OCSP:
             return None
 
         while len(Q) != 0:
-            assignment = Q.pop()[1]
+            assignment = Q.pop()  #[1]
             expanded.append(assignment)
             if all(var in assignment.keys() for var in decision_vars):
                 # Complete assignment, check consistency with all variables
@@ -313,48 +316,48 @@ class OCSP:
                     good_expansion = {**assignment, **{x_i:'G'}}
                     unknown_expansion = {**assignment, **{x_i:'U'}}
                     if good_expansion not in expanded:
-                        heur = self.calculate_heuristic_value(good_expansion)
-                        # Eventually move this to its own function, and
-                        # back to using a binary heap to speed up
-                        if len(Q) == 0:
-                            Q.append((heur, good_expansion))
-                        else:
-                            for i, (h, _) in enumerate(Q.copy()):
-                                if heur < h:
-                                    Q.insert(i, (heur, good_expansion))
-                                    break
-                                elif i == len(Q) - 1:
-                                    Q.append((heur, good_expansion))
-                        # Q.append(good_expansion)
+                        # heur = self.calculate_heuristic_value(good_expansion)
+                        # # Eventually move this to its own function, and
+                        # # back to using a binary heap to speed up
+                        # if len(Q) == 0:
+                        #     Q.append((heur, good_expansion))
+                        # else:
+                        #     for i, (h, _) in enumerate(Q.copy()):
+                        #         if heur < h:
+                        #             Q.insert(i, (heur, good_expansion))
+                        #             break
+                        #         elif i == len(Q) - 1:
+                        #             Q.append((heur, good_expansion))
+                        Q.append(good_expansion)
                     if unknown_expansion not in expanded:
-                        heur = self.calculate_heuristic_value(unknown_expansion)
-                        if len(Q) == 0:
-                            Q.append((heur, unknown_expansion))
-                        else:
-                            for i, (h, _) in enumerate(Q.copy()):
-                                if heur < h:
-                                    Q.insert(i, (heur, unknown_expansion))
-                                    break
-                                elif i == len(Q) - 1:
-                                    Q.append((heur, unknown_expansion))
-                        # Q.append(unknown_expansion)
+                        # heur = self.calculate_heuristic_value(unknown_expansion)
+                        # if len(Q) == 0:
+                        #     Q.append((heur, unknown_expansion))
+                        # else:
+                        #     for i, (h, _) in enumerate(Q.copy()):
+                        #         if heur < h:
+                        #             Q.insert(i, (heur, unknown_expansion))
+                        #             break
+                        #         elif i == len(Q) - 1:
+                        #             Q.append((heur, unknown_expansion))
+                        Q.append(unknown_expansion)
                 else:
                     # TODO: I don't think this is right either
                     for constituent in constituents:
                         for var, assign in constituent.items():
                             if var not in assignment:
                                 expansion = {**assignment, **{var:assign}}
-                                heur = self.calculate_heuristic_value(expansion)
-                                if len(Q) == 0:
-                                    Q.append((heur, expansion))
-                                else:
-                                    for i, (h, _) in enumerate(Q.copy()):
-                                        if heur < h:
-                                            Q.insert(i, (heur, expansion))
-                                            break
-                                        elif i == len(Q) - 1:
-                                            Q.append((heur, expansion))
-                                # Q.append(expansion)
+                                # heur = self.calculate_heuristic_value(expansion)
+                                # if len(Q) == 0:
+                                #     Q.append((heur, expansion))
+                                # else:
+                                #     for i, (h, _) in enumerate(Q.copy()):
+                                #         if heur < h:
+                                #             Q.insert(i, (heur, expansion))
+                                #             break
+                                #         elif i == len(Q) - 1:
+                                #             Q.append((heur, expansion))
+                                Q.append(expansion)
         return None
 
 
