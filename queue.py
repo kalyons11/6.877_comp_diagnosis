@@ -81,24 +81,34 @@ class PriorityQueue(Queue):
     def __init__(self, order=min, f=lambda x: x):
         update(self, A=[], order=order, f=f)
     def append(self, item):
-        bisect.insort(self.A, (self.f(item), item))
+        entry = PriorityEntry(self.f(item), item)
+        bisect.insort(self.A, entry)
     def __len__(self):
         return len(self.A)
     def pop(self):
         if self.order == min:
-            return self.A.pop(0)[1]
+            return self.A.pop(0).data
         else:
-            return self.A.pop()[1]
+            return self.A.pop().data
     def __contains__(self, item):
-        return some(lambda x : x[1] == item, self.A)
+        return some(lambda x : x.data == item, self.A)
     def __getitem__(self, key):
-        for _, item in self.A:
-            if item == key:
-                return item
+        for _, entry in self.A:
+            if entry.priority == key[0] and entry.data == key[1]:
+                return entry.data
     def __delitem__(self, key):
-        for i, (value, item) in enumerate(self.A):
-            if item == key:
+        for i, entry in enumerate(self.A):
+            if entry.priority == key[0] and entry.data == key[1]:
                 self.A.pop(i)
                 return
 
 
+# https://stackoverflow.com/questions/40205223/priority-queue-with-tuples-and-dicts
+class PriorityEntry(object):
+
+    def __init__(self, priority, data):
+        self.data = data
+        self.priority = priority
+
+    def __lt__(self, other):
+        return self.priority < other.priority
